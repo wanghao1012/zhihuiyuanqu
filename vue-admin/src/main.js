@@ -1,5 +1,5 @@
 import Vue from 'vue'
-// 初始化样式
+// 初始化样式 清空浏览器的默认样式
 import 'normalize.css/normalize.css'
 // 引入ElementUI
 import ElementUI from 'element-ui'
@@ -19,6 +19,7 @@ import '@/icons'
 // 把ElementUI提供的所有组件注册为全局组件
 Vue.use(ElementUI)
 
+// 上线之后如果有警告  要不要展示
 Vue.config.productionTip = false
 
 // vue实例化

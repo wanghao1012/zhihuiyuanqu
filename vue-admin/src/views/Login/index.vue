@@ -3,19 +3,19 @@
     <div class="bg" />
     <div class="box">
       <div class="title">智慧园区-登录</div>
-      <el-form ref="form">
+      <el-form ref="form" :model="loginForm" :rules="rules">
         <el-form-item
           label="账号"
           prop="username"
         >
-          <el-input />
+          <el-input v-model="loginForm.username" />
         </el-form-item>
 
         <el-form-item
           label="密码"
           prop="password"
         >
-          <el-input />
+          <el-input v-model="loginForm.password" show-password type="password" />
         </el-form-item>
 
         <el-form-item prop="remember">
@@ -23,7 +23,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" class="login_btn">登录</el-button>
+          <el-button type="primary" class="login_btn" @click="handleLogin">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -31,9 +31,33 @@
 </template>
 
 <script>
-
+// import { loginAPI } from '@/api/user'
 export default {
-  name: 'Login'
+  name: 'Login',
+  data() {
+    return {
+      loginForm: {
+        username: '',
+        password: ''
+      },
+      rules: {
+        username: [{ required: true, message: '用户名不可为空', trigger: 'blur' }],
+        password: [{ required: true, message: '密码不可为空', trigger: 'blur' }]
+      }
+    }
+  },
+  methods: {
+    handleLogin() {
+      this.$refs.form.validate(async flag => {
+        if (!flag) return
+        // console.log('哈哈哈')
+        // const res = await loginAPI(this.loginForm)
+        // console.log(res)
+        // this.$store.commit('user/setToken', res.data.token)
+        this.$store.dispatch('user/loginActions', this.loginForm)
+      })
+    }
+  }
 
 }
 
