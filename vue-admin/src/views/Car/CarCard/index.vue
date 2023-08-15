@@ -38,9 +38,21 @@
       </el-table>
     </div>
     <div class="page-container">
+      <!-- currpage-page: 表示当前页码 -->
+      <!-- page-sizes：可选择的每页的页容量 -->
+      <!-- page-size: 当前页的页容量 page-size的值通常和page-sizes的第一个值保持一致-->
+      <!-- layout：表示 分页的样式 -->
+      <!-- total：表示一共有多少条 -->
+      <!-- size-change：页容量发生变化时，会触发 这个事件 -->
+      <!-- current-change：页码发生变化是，会触发这个事件 -->
       <el-pagination
-        layout="total, prev, pager, next"
-        :total="0"
+        :current-page="params.page"
+        :page-sizes="[2, 4, 6, 8]"
+        :page-size="params.pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
     <!-- 添加楼宇 -->
@@ -81,12 +93,13 @@ export default {
     return {
       params: {
         page: 1,
-        pageSize: 10,
+        pageSize: 2,
         carNumber: '',
         personName: '',
         cardStatus: null
       },
-      list: []
+      list: [],
+      total: 0
     }
   },
   created() {
@@ -95,17 +108,27 @@ export default {
   methods: {
     // 格式化状态
     formatStatus(row, column, cellValue, index) {
-      const Map = {
+      const MAP = {
         0: '可用',
-        1: '已过期'
+        1: '不可用'
       }
-      return Map[cellValue]
+      return MAP[cellValue]
     },
-    // 获取月卡列表信息
+    // 获取月卡列表
     async getCardList() {
-      const res = await getCardListApi()
-      // console.log(res)
+      const res = await getCardListApi(this.params)
       this.list = res.data.rows
+      this.total = res.data.total
+    },
+    // 修改每页的数据
+    handleSizeChange(val) {
+      this.params.pageSize = val
+      this.getCardList() // 重新获取列表
+    },
+    // 修改页数
+    handleCurrentChange(val) {
+      this.params.page = val
+      this.getCardList() // 重新获取列表
     }
   }
 }
