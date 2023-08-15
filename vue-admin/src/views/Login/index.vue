@@ -19,7 +19,7 @@
         </el-form-item>
 
         <el-form-item prop="remember">
-          <el-checkbox>记住我</el-checkbox>
+          <el-checkbox v-model="rememberMe">记住我</el-checkbox>
         </el-form-item>
 
         <el-form-item>
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { FORM_KEY } from '@/constants/KEY'
 // import { loginAPI } from '@/api/user'
 export default {
   name: 'Login',
@@ -40,10 +41,21 @@ export default {
         username: '',
         password: ''
       },
+      rememberMe: false,
       rules: {
         username: [{ required: true, message: '用户名不可为空', trigger: 'blur' }],
         password: [{ required: true, message: '密码不可为空', trigger: 'blur' }]
       }
+    }
+  },
+  created() {
+    // 将用户信息回显到页面中
+    const formData = localStorage.getItem(FORM_KEY)
+    if (formData) {
+      const { username, password } = JSON.parse(formData)
+      this.loginForm.username = username
+      this.loginForm.password = password
+      this.rememberMe = true
     }
   },
   methods: {
@@ -54,7 +66,27 @@ export default {
         // const res = await loginAPI(this.loginForm)
         // console.log(res)
         // this.$store.commit('user/setToken', res.data.token)
-        this.$store.dispatch('user/loginActions', this.loginForm)
+        // try {
+        // async声明的函数 会遵循内同步,外异步的方式执行 所以这里会先执行下面的代码再执行这里的代码
+        await this.$store.dispatch('user/loginActions', this.loginForm)
+        // console.log(this.$route.query.redirect)
+        // 判断用户 如果是第一次登录就跳转到默认的页面   如果是从其他页面跳转过来的就在登录后再跳回到那个页面
+        if (this.$route.query.redirect) {
+          this.$router.push(this.$route.query.redirect)
+        } else {
+          this.$router.push('/')
+        }
+        // 判断用户是否点击记住我
+        if (this.rememberMe) {
+          // 将用户信息存储到本地
+          localStorage.setItem(FORM_KEY, JSON.stringify(this.loginForm))
+        } else {
+          // 如果用户没有选择记住我 则登录完成之后清空表单数据
+          localStorage.removeItem(FORM_KEY)
+        }
+        // } catch (error) {
+        //   this.$message.error(error.response.data.msg)
+        // }
       })
     }
   }

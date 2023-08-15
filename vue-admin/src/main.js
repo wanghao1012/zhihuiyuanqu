@@ -16,6 +16,10 @@ import router from './router'
 
 // 注册svg
 import '@/icons'
+
+// 导入导航守卫
+import './permission'
+
 // 把ElementUI提供的所有组件注册为全局组件
 Vue.use(ElementUI)
 
