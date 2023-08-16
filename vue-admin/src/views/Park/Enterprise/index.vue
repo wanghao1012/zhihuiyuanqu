@@ -24,7 +24,7 @@
             <el-button size="mini" type="text">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text" @click="editRent(scope.row.id)">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="del(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { getEnterpriseListApi } from '@/api/enterprise'
+import { getEnterpriseListApi, delEnterpriseApi } from '@/api/enterprise'
 export default {
   data() {
     return {
@@ -96,6 +96,24 @@ export default {
         query: {
           id
         }
+      })
+    },
+    // 删除
+    del(id) {
+      this.$confirm('确认删除该企业吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await delEnterpriseApi(id)
+        if (this.exterpriseList.length === 1 && this.params.page > 1) {
+          this.params.page--
+        }
+        this.getEnterpriseList()
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
       })
     }
   }

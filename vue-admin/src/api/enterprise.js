@@ -71,3 +71,15 @@ export const editEnterpriseApi = data => {
     data
   })
 }
+
+/**
+ * 删除企业
+ * @param {*} id
+ * @returns
+ */
+export const delEnterpriseApi = id => {
+  return request({
+    url: `/park/enterprise/${id}`,
+    method: 'DELETE'
+  })
+}
