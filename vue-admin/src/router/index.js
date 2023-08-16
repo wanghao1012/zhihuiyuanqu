@@ -113,8 +113,15 @@ export const routes = [
     component: () => import('@/views/404'),
     hidden: true
   },
+  // 添加编辑月卡
   { path: '/cardAdd',
-    component: () => import('@/views/Car/CarCard/cardAdd') }
+    component: () => import('@/views/Car/CarCard/cardAdd')
+  },
+  // 添加编辑企业
+  {
+    path: '/exterpriseAdd',
+    component: () => import('@/views/Park/Enterprise/exterpriseAdd')
+  }
 ]
 
 const createRouter = () => new Router({

@@ -3,16 +3,16 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">企业名称：</div>
-      <el-input clearable placeholder="请输入内容" class="search-main" />
-      <el-button type="primary">查询</el-button>
+      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" />
+      <el-button type="primary" @click="inquire">查询</el-button>
     </div>
     <div class="create-container">
-      <el-button type="primary">添加企业</el-button>
+      <el-button type="primary" @click="$router.push('/exterpriseAdd')">添加企业</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
       <el-table style="width: 100%" :data="exterpriseList">
-        <el-table-column type="index" label="序号" />
+        <el-table-column type="index" label="序号" :index="indexMethod" />
         <el-table-column label="企业名称" width="320" prop="name" />
         <el-table-column label="联系人" prop="contact" />
         <el-table-column
@@ -23,7 +23,7 @@
           <template #default="scope">
             <el-button size="mini" type="text">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="editRent(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text">删除</el-button>
           </template>
         </el-table-column>
@@ -31,7 +31,13 @@
     </div>
     <div class="page-container">
       <el-pagination
-        layout="total, prev, pager, next"
+        :current-page="params.page"
+        :page-sizes="[10,20,50,100]"
+        :page-size="params.pageSize"
+        layout="total, sizes, prev, pager, next"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
   </div>
@@ -47,7 +53,8 @@ export default {
         name: '', // 企业名称
         page: 1, // 页数
         pageSize: 10 // 每页条数
-      }
+      },
+      total: 0
     }
   },
   created() {
@@ -59,6 +66,37 @@ export default {
       const res = await getEnterpriseListApi(this.params)
       console.log(res)
       this.exterpriseList = res.data.rows
+      this.total = res.data.total
+    },
+    // 每页条数
+    handleSizeChange(val) {
+      this.params.pageSize = val
+      this.params.page = 1
+      this.getEnterpriseList()
+    },
+    // 当前页数
+    handleCurrentChange(val) {
+      this.params.page = val
+      this.getEnterpriseList()
+    },
+    // 序号
+    indexMethod(index) {
+      // 前面所有页数和每页条数的乘积  加上  index +1  就是序号
+      return (this.params.page - 1) * this.params.pageSize + index + 1
+    },
+    // 查询
+    inquire() {
+      this.params.page = 1
+      this.getEnterpriseList()
+    },
+    // 编辑跳转
+    editRent(id) {
+      this.$router.push({
+        path: '/exterpriseAdd',
+        query: {
+          id
+        }
+      })
     }
   }
 }
