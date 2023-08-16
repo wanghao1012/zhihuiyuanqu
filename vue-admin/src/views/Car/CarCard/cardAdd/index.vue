@@ -1,7 +1,7 @@
 <template>
   <div class="add-card">
     <header class="add-header">
-      <el-page-header content="增加月卡" @back="$router.back()" />
+      <el-page-header :content="$route.query.id?'编辑月卡':'增加月卡'" @back="$router.back()" />
     </header>
     <main class="add-main">
       <div class="form-container">
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { addCardListApi } from '@/api/card'
+import { addCardListApi, getCardApi, editCardApi } from '@/api/card'
 export default {
   data() {
     // 单独校验车牌号
@@ -103,6 +103,7 @@ export default {
       },
       // 缴费信息表单数据
       feeForm: {
+
         payTime: '', // 支付时间
         paymentAmount: null, // 支付金额
         paymentMethod: '' // 支付方式
@@ -143,7 +144,33 @@ export default {
       ]
     }
   },
+  created() {
+    this.getCard()
+  },
   methods: {
+    // 获取单个月卡信息
+    async getCard() {
+      // 判断用户是否点击的是编辑 (判断路由地址是否带有id)
+      if (this.$route.query.id) {
+        const res = await getCardApi(this.$route.query.id)
+        // 数据回显
+        console.log(res)
+        // 回填车辆信息表单
+        const { carInfoId, personName, phoneNumber, carNumber, carBrand } = res.data
+        this.params = {
+          personName, phoneNumber, carNumber, carBrand, carInfoId
+        }
+
+        // 回填缴费信息表单
+        const { rechargeId, cardStartDate, cardEndDate, paymentAmount, paymentMethod } = res.data.rechargeList[0]
+        this.feeForm = {
+          rechargeId,
+          paymentAmount,
+          paymentMethod,
+          payTime: [cardStartDate, cardEndDate]
+        }
+      }
+    },
     // 添加月卡
     add() {
       this.$refs.params.validate((valid) => {
@@ -161,11 +188,19 @@ export default {
               // 删除多余的字段
               delete data.payTime
               // alert('成立')
-              // 发送请求
-              await addCardListApi(data)
-              // console.log(res)
-              // 提示新增成功
-              this.$message.success('新增成功')
+              if (this.$route.query.id) {
+                // 发送请求
+                await editCardApi(data)
+                // console.log(res)
+                // 提示新增成功
+                this.$message.success('修改成功')
+              } else {
+                // 发送请求
+                await addCardListApi(data)
+                // console.log(res)
+                // 提示新增成功
+                this.$message.success('新增成功')
+              }
               // 返回上一页
               this.$router.back()
             }
