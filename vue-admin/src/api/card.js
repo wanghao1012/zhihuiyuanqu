@@ -14,3 +14,14 @@ export const getCardListApi = (params) => {
   })
 }
 
+/**
+ * 添加月卡
+ * @param {*} data 参数
+ * @returns
+ */
+export const addCardListApi = data => {
+  return request({
+    url: '/parking/card',
+    method: 'post',
+    data })
+}

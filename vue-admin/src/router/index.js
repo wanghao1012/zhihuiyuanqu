@@ -60,6 +60,7 @@ export const routes = [
       permission: 'parking:card',
       component: () => import('@/views/Car/CarCard'),
       meta: { title: '月卡管理' }
+
     }, {
       path: 'pay',
       permission: 'parking:payment',
@@ -111,7 +112,9 @@ export const routes = [
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
-  }
+  },
+  { path: '/cardAdd',
+    component: () => import('@/views/Car/CarCard/cardAdd') }
 ]
 
 const createRouter = () => new Router({
