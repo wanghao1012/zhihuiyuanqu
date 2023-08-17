@@ -34,7 +34,13 @@
     </div>
     <div class="page-container">
       <el-pagination
-        layout="total, prev, pager, next"
+        :current-page="from.page"
+        :page-sizes="[10, 20, 30, 40]"
+        :page-size="from.pageSize"
+        layout="total,  prev, pager, next,sizes"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
     <!-- 添加员工 -->
@@ -78,6 +84,17 @@ export default {
     // 序号
     indexMethod(index) {
       return this.from.pageSize * (this.from.page - 1) + index + 1
+    },
+    // 每页条数发生改变时
+    handleSizeChange(val) {
+      this.from.page = 1
+      this.from.pageSize = val
+      this.getEmployeeList() // 重新渲染页面
+    },
+    // 当页数发生改变时
+    handleCurrentChange(val) {
+      this.from.page = val
+      this.getEmployeeList() // 重新渲染页面
     }
   }
 }
