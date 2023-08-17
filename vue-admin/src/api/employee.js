@@ -12,3 +12,24 @@ export const getEmployeeListApi = params => {
     params
   })
 }
+
+/**
+ * 获取所有角色列表
+ * @returns
+ */
+export const getRoleListApi = () => {
+  return request.get('/park/sys/role')
+}
+
+/**
+ * 添加员工
+ * @param {*} data
+ * @returns
+ */
+export const addEmployeeListApi = data => {
+  return request({
+    url: '/park/sys/user',
+    method: 'post',
+    data
+  })
+}
