@@ -26,7 +26,7 @@
         <el-table-column label="操作" fixed="right" width="200">
           <template #default="scope">
             <el-button size="mini" type="text">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="delEmployeeList(scope.row.id)">删除</el-button>
             <el-button size="mini" type="text">重置密码</el-button>
           </template>
         </el-table-column>
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { getEmployeeListApi, getRoleListApi, addEmployeeListApi } from '@/api/employee'
+import { getEmployeeListApi, getRoleListApi, addEmployeeListApi, delEmployeeListApi } from '@/api/employee'
 export default {
   name: 'Employee',
   data() {
@@ -189,6 +189,21 @@ export default {
           this.getEmployeeList() // 重新渲染列表
           this.$message.success('添加成功')
         }
+      })
+    },
+    // 删除
+    delEmployeeList(id) {
+      this.$confirm('删除员工后将不可登录，确认删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await delEmployeeListApi(id)
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+        this.getEmployeeList()
       })
     }
   }

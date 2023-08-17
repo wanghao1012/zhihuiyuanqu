@@ -33,3 +33,10 @@ export const addEmployeeListApi = data => {
     data
   })
 }
+
+export const delEmployeeListApi = id => {
+  return request({
+    url: `/park/sys/user/${id}`,
+    method: 'DELETE'
+  })
+}
