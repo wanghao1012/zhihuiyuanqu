@@ -83,3 +83,27 @@ export const delEnterpriseApi = id => {
     method: 'DELETE'
   })
 }
+
+/**
+ * 获取课租赁的楼宇
+ * @returns
+ */
+export const getRentBuildingListApi = () => {
+  return request({
+    url: '/park/rent/building',
+    method: 'get'
+  })
+}
+
+/**
+ * 创建合同
+ * @param {*}
+ * @returns
+ */
+export function createRentApi(data) {
+  return request({
+    url: '/park/enterprise/rent',
+    method: 'POST',
+    data
+  })
+}

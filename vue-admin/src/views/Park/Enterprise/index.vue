@@ -21,13 +21,60 @@
         />
         <el-table-column label="操作">
           <template #default="scope">
-            <el-button size="mini" type="text">添加合同</el-button>
+            <el-button size="mini" type="text" @click="addRent(scope.row.id)">添加合同</el-button>
             <el-button size="mini" type="text">查看</el-button>
             <el-button size="mini" type="text" @click="editRent(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="del(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <!-- 添加合同弹框 -->
+      <el-dialog
+        title="添加合同"
+        :visible="rentDialogVisible"
+        width="580px"
+        @close="closeDialog"
+      >
+        <!-- 表单模版 -->
+        <div class="form-container">
+          <el-form ref="addForm" :model="rentForm" :rules="rentRules" label-position="top">
+            <el-form-item label="租赁楼宇" prop="buildingId">
+              <el-select v-model="rentForm.buildingId" placeholder="请选择">
+                <el-option
+                  v-for="item in buildList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="租赁起止日期" prop="rentTime">
+              <el-date-picker
+                v-model="rentForm.rentTime"
+                type="daterange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                value-format="yyyy-MM-dd"
+              />
+            </el-form-item>
+            <el-form-item label="租赁合同" prop="contractId">
+              <el-upload
+                action="#"
+                :http-request="uploadHandle"
+              >
+                <el-button size="small" type="primary" plain>上传合同文件</el-button>
+                <div slot="tip" class="el-upload__tip">支持扩展名：.doc .docx .pdf, 文件大小不超过5M</div>
+              </el-upload>
+            </el-form-item>
+          </el-form>
+        </div>
+        <template #footer>
+          <el-button size="mini" @click="closeDialog">取 消</el-button>
+          <el-button size="mini" type="primary" @click="confirmAdd">确 定</el-button>
+        </template>
+      </el-dialog>
+
     </div>
     <div class="page-container">
       <el-pagination
@@ -44,7 +91,7 @@
 </template>
 
 <script>
-import { getEnterpriseListApi, delEnterpriseApi } from '@/api/enterprise'
+import { getEnterpriseListApi, delEnterpriseApi, getRentBuildingListApi, uploadApi, createRentApi } from '@/api/enterprise'
 export default {
   data() {
     return {
@@ -54,7 +101,29 @@ export default {
         page: 1, // 页数
         pageSize: 10 // 每页条数
       },
-      total: 0
+      total: 0,
+      rentDialogVisible: false, // 弹窗的开关
+      // 添加合同
+      rentForm: {
+        buildingId: null, // 楼宇id
+        contractId: null, // 合同id
+        contractUrl: '', // 合同Url
+        enterpriseId: null, // 企业名称
+        type: 0, // 合同类型
+        rentTime: [] // 合同时间
+      },
+      rentRules: {
+        buildingId: [
+          { required: true, message: '请选择楼宇', trigger: 'change' }
+        ],
+        rentTime: [
+          { required: true, message: '请选择租赁日期', trigger: 'change' }
+        ],
+        contractId: [
+          { required: true, message: '请上传合同文件' }
+        ]
+      },
+      buildList: [] // 楼宇列表
     }
   },
   created() {
@@ -114,6 +183,62 @@ export default {
           type: 'success',
           message: '删除成功!'
         })
+      })
+    },
+    // 打开弹窗
+    async addRent(id) {
+      this.rentDialogVisible = true
+      const res = await getRentBuildingListApi()
+      console.log(res)
+      this.buildList = res.data
+
+      // 把企业id存入表单对象
+      this.rentForm.enterpriseId = id
+    },
+    // 关闭
+    closeDialog() {
+      this.rentDialogVisible = false
+      // 重置表单
+      this.$refs.addForm.resetFields()
+      this.rentForm = {
+        buildingId: null, // 楼宇id
+        contractId: null, // 合同id
+        contractUrl: '', // 合同Url
+        enterpriseId: null, // 企业名称
+        type: 0, // 合同类型
+        rentTime: [] // 合同时间
+      }
+    },
+    // 上传合同
+    async uploadHandle(fileData) {
+      // 1. 处理FormData
+      const { file } = fileData
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'contract')
+      // 2. 上传并赋值
+      const res = await uploadApi(formData)
+      const { id, url } = res.data
+      this.rentForm.contractId = id
+      this.rentForm.contractUrl = url
+      // 单独校验表单
+      this.$refs.addForm.validate('contractId')
+    },
+    // 确认提交
+    confirmAdd() {
+      this.$refs.addForm.validate(async valid => {
+        if (valid) {
+          const { buildingId, contractId, contractUrl, enterpriseId, type } = this.rentForm
+          await createRentApi({
+            buildingId, contractId, contractUrl, enterpriseId, type,
+            startTime: this.rentForm.rentTime[0],
+            endTime: this.rentForm.rentTime[1]
+          })
+          // 更新列表
+          this.getEnterpriseList()
+          // 关闭弹框
+          this.closeDialog()
+        }
       })
     }
   }
