@@ -121,6 +121,10 @@ export const routes = [
   {
     path: '/exterpriseAdd',
     component: () => import('@/views/Park/Enterprise/exterpriseAdd')
+  },
+  {
+    path: '/exterpriseDetail',
+    component: () => import('@/views/Park/Enterprise/Detail')
   }
 ]
 

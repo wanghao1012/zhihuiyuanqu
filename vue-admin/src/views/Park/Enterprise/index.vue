@@ -11,7 +11,7 @@
     </div>
     <!-- 表格区域 -->
     <div class="table">
-      <el-table style="width: 100%" :data="exterpriseList">
+      <el-table style="width: 100%" :data="exterpriseList" @expand-change="expandHandle">
         <el-table-column type="index" label="序号" :index="indexMethod" />
         <el-table-column label="企业名称" width="320" prop="name" />
         <el-table-column label="联系人" prop="contact" />
@@ -22,9 +22,32 @@
         <el-table-column label="操作">
           <template #default="scope">
             <el-button size="mini" type="text" @click="addRent(scope.row.id)">添加合同</el-button>
-            <el-button size="mini" type="text">查看</el-button>
+            <el-button size="mini" type="text" @click="lookRent(scope.row.id)">查看</el-button>
             <el-button size="mini" type="text" @click="editRent(scope.row.id)">编辑</el-button>
             <el-button size="mini" type="text" @click="del(scope.row.id)">删除</el-button>
+          </template>
+        </el-table-column>
+        <!-- 查看当前合同 -->
+        <el-table-column type="expand">
+          <template #default="{row}">
+            <el-table :data="row.rentList">
+              <el-table-column label="租赁楼宇" width="320" prop="buildingName" />
+              <el-table-column label="租赁起始时间" prop="startTime" />
+              <el-table-column label="合同状态" prop="status">
+                <template #default="scope">
+                  <el-tag :type="formatInfoType(scope.row.status)">
+                    {{ formatStatus(scope.row.status) }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="180">
+                <template #default="scope">
+                  <el-button size="mini" type="text">续租</el-button>
+                  <el-button size="mini" type="text" :disabled="scope.row.status === 3" @click="outRent(scope.row.id)">退租</el-button>
+                  <el-button size="mini" type="text" :disabled="scope.row.status !== 3">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
           </template>
         </el-table-column>
       </el-table>
@@ -91,7 +114,7 @@
 </template>
 
 <script>
-import { getEnterpriseListApi, delEnterpriseApi, getRentBuildingListApi, uploadApi, createRentApi } from '@/api/enterprise'
+import { getEnterpriseListApi, delEnterpriseApi, getRentBuildingListApi, uploadApi, createRentApi, getRentListApi, outRentApi } from '@/api/enterprise'
 export default {
   data() {
     return {
@@ -134,8 +157,44 @@ export default {
     async getEnterpriseList() {
       const res = await getEnterpriseListApi(this.params)
       console.log(res)
-      this.exterpriseList = res.data.rows
+      this.exterpriseList = res.data.rows.map((item) => {
+        return {
+          ...item,
+          rentList: [] // 每一行补充存放合同的列表
+        }
+      })
       this.total = res.data.total
+    },
+    // 展开当前企业租赁的楼宇
+    async expandHandle(row, rows) {
+      console.log('展开或关闭', row, rows)
+      const isExpend = rows.find(item => item.id === row.id)
+      if (isExpend) {
+        const res = await getRentListApi(row.id)
+        // eslint-disable-next-line require-atomic-updates
+        row.rentList = res.data
+      }
+    },
+    // 格式化tag类型
+    formatInfoType(status) {
+      const MAP = {
+        0: 'warning',
+        1: 'success',
+        2: 'info',
+        3: 'danger'
+      }
+      // return 格式化之后的中文显示
+      return MAP[status]
+    },
+    // 格式化status  判断合同是否生效
+    formatStatus(type) {
+      const TYPEMAP = {
+        0: '待生效',
+        1: '生效中',
+        2: '已到期',
+        3: '已退租'
+      }
+      return TYPEMAP[type]
     },
     // 每页条数
     handleSizeChange(val) {
@@ -162,6 +221,15 @@ export default {
     editRent(id) {
       this.$router.push({
         path: '/exterpriseAdd',
+        query: {
+          id
+        }
+      })
+    },
+    // 查看跳转
+    lookRent(id) {
+      this.$router.push({
+        path: '/exterpriseDetail',
         query: {
           id
         }
@@ -239,6 +307,28 @@ export default {
           // 关闭弹框
           this.closeDialog()
         }
+      })
+    },
+    // 退租
+    async outRent(id) {
+      this.$confirm('确认退租吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        // 1. 调用接口
+        await outRentApi(id)
+        // 2. 重新拉取列表
+        this.getEnterpriseList()
+        this.$message({
+          type: 'success',
+          message: '退租成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消退租'
+        })
       })
     }
   }

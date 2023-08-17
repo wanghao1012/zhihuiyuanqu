@@ -107,3 +107,38 @@ export function createRentApi(data) {
     data
   })
 }
+
+/**
+ * 获取合同列表
+ * @param {*} id
+ * @returns
+ */
+export function getRentListApi(id) {
+  return request({
+    url: `/park/enterprise/rent/${id}`
+  })
+}
+
+/**
+ * 退租
+ * @param {*} id
+ * @returns
+ */
+export const outRentApi = id => {
+  return request({
+    url: `/park/enterprise/rent/${id}`,
+    method: 'put'
+  })
+}
+
+/**
+ * 查看企业
+ * @param {*} id
+ * @returns
+ */
+export const getEnterpriseDetailApi = id => {
+  return request({
+    url: `/park/enterprise/${id}`,
+    method: 'GET'
+  })
+}
