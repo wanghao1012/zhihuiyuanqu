@@ -34,9 +34,27 @@ export const addEmployeeListApi = data => {
   })
 }
 
+/**
+ * 删除员工
+ * @param {*} id
+ * @returns
+ */
 export const delEmployeeListApi = id => {
   return request({
     url: `/park/sys/user/${id}`,
     method: 'DELETE'
+  })
+}
+
+/**
+ * 修改员工
+ * @param {*} data
+ * @returns
+ */
+export const editEmployeeApi = data => {
+  return request({
+    url: '/park/sys/user',
+    method: 'put',
+    data
   })
 }

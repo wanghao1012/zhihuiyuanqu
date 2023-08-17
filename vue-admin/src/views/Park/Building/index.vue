@@ -6,7 +6,7 @@
       <el-input v-model="searchForm.name" placeholder="请输入内容" class="search-main" />
       <el-button type="primary" @click="searchList">查询</el-button>
     </div>
-    <el-button type="primary" @click="addBuilding">添加楼宇</el-button>
+    <el-button type="primary" @click="editBuilding(null)">添加楼宇</el-button>
     <!-- 表格区域 -->
     <div class="table">
       <el-table
@@ -178,12 +178,7 @@ export default {
       // 2. 调用获取列表接口
       this.getParkBuildingList()
     },
-    // 打开
-    addBuilding() {
-      this.dialogVisible = true
-      delete this.addForm.id
-      console.log(this.addForm)
-    },
+
     // 关闭
     closeDialog() {
       this.dialogVisible = false
@@ -191,11 +186,21 @@ export default {
     // 修改楼宇
     editBuilding(row) {
       this.dialogVisible = true
-      this.title = '编辑楼宇'
-      // 2. 解构必要字段 并回显数据
-      const { id, area, floors, name, propertyFeePrice } = row
-      this.addForm = {
-        id, area, floors, name, propertyFeePrice
+      if (row) {
+        this.title = '编辑楼宇'
+        // 2. 解构必要字段 并回显数据
+        const { id, area, floors, name, propertyFeePrice } = row
+        this.addForm = {
+          id, area, floors, name, propertyFeePrice
+        }
+      } else {
+        this.title = '新增楼宇'
+        this.addForm = {
+          name: '',
+          floors: null,
+          area: null,
+          propertyFeePrice: null
+        }
       }
       console.log(this.addForm)
     },

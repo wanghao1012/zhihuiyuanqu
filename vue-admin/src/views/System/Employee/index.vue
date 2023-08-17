@@ -7,7 +7,7 @@
       <el-button type="primary">查询</el-button>
     </div>
     <div class="create-container">
-      <el-button type="primary" @click="addEmployee">添加员工</el-button>
+      <el-button type="primary" @click="editEmployee(null)">添加员工</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
@@ -25,7 +25,7 @@
         <el-table-column label="添加时间" prop="createTime" />
         <el-table-column label="操作" fixed="right" width="200">
           <template #default="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="editEmployee(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="delEmployeeList(scope.row.id)">删除</el-button>
             <el-button size="mini" type="text">重置密码</el-button>
           </template>
@@ -46,7 +46,7 @@
     <!-- 添加员工 -->
     <el-dialog
       :visible="dialogVisible"
-      title="添加员工"
+      :title="title"
       width="480px"
       @close="closeDialog"
     >
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { getEmployeeListApi, getRoleListApi, addEmployeeListApi, delEmployeeListApi } from '@/api/employee'
+import { getEmployeeListApi, getRoleListApi, addEmployeeListApi, delEmployeeListApi, editEmployeeApi } from '@/api/employee'
 export default {
   name: 'Employee',
   data() {
@@ -126,11 +126,13 @@ export default {
         status: [
           { required: true, message: '请选择员工状态', trigger: 'blur' }
         ]
-      }
+      },
+      title: '添加员工'
     }
   },
   created() {
     this.getEmployeeList()
+    this.getRoleList()
   },
   methods: {
     // 获取员工列表
@@ -163,37 +165,35 @@ export default {
       this.from.page = val
       this.getEmployeeList() // 重新渲染页面
     },
-    // 打开弹框
-    async  addEmployee() {
-      this.dialogVisible = true
-
-      // 发送请求获取角色列表
-      const res = await getRoleListApi()
-      console.log(res)
-      this.roleList = res.data
-    },
     // 关闭弹框
     closeDialog() {
       this.dialogVisible = false
     },
-    // 添加员工
+    // 添加修改员工
     addEmployeeList() {
       // 完整校验
       this.$refs.addForm.validate(async isOK => {
         if (isOK) {
-          // console.log(isOK)
-          const res = await addEmployeeListApi(this.addForm)
-          console.log(res)
-          this.closeDialog() // 关闭弹框
-          this.$refs.addForm.resetFields() // 重置表单
+          if (this.addForm.id) {
+            console.log(this.addForm)
+            const res = await editEmployeeApi(this.addForm)
+            console.log(res)
+            this.$message.success('修改成功')
+          } else {
+            // console.log(isOK)
+            const res = await addEmployeeListApi(this.addForm)
+            console.log(res)
+            this.$message.success('添加成功')
+            this.$refs.addForm.resetFields() // 重置表单
+          }
           this.getEmployeeList() // 重新渲染列表
-          this.$message.success('添加成功')
+          this.closeDialog() // 关闭弹框
         }
       })
     },
     // 删除
     delEmployeeList(id) {
-      this.$confirm('删除员工后将不可登录，确认删除吗?', '提示', {
+      this.$confirm('删除员工后将不可登录，确认删除吗?', '温馨提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -205,6 +205,33 @@ export default {
         })
         this.getEmployeeList()
       })
+    },
+    // 点击弹框
+    editEmployee(row) {
+      this.dialogVisible = true
+      // 判断是否为编辑状态
+      if (row) {
+        console.log(row)
+        this.title = '编辑员工'
+        const { id, name, roleId, roleName, status, userName, phonenumber } = row
+        this.addForm = { id, name, roleId, roleName, status, userName, phonenumber }
+      } else {
+        this.title = '添加员工'
+        this.addForm = {
+          name: '',
+          phonenumber: '',
+          roleId: '',
+          status: 1,
+          userName: ''
+        }
+      }
+    },
+    // 获取角色管理
+    async getRoleList() {
+      // 发送请求获取角色列表
+      const res = await getRoleListApi()
+      console.log(res)
+      this.roleList = res.data
     }
   }
 }
