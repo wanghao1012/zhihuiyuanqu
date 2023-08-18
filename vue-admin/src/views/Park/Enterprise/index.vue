@@ -3,7 +3,7 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">企业名称：</div>
-      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" />
+      <el-input v-model="params.name" clearable placeholder="请输入内容" class="search-main" @clear="inquire" />
       <el-button type="primary" @click="inquire">查询</el-button>
     </div>
     <div class="create-container">

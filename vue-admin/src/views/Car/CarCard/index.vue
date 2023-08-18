@@ -3,9 +3,9 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <span class="search-label">车牌号码：</span>
-      <el-input v-model="params.carNumber" clearable placeholder="请输入内容" class="search-main" />
+      <el-input v-model="params.carNumber" clearable placeholder="请输入内容" class="search-main" @clear="searchBtn" />
       <span class="search-label">车主姓名：</span>
-      <el-input v-model="params.personName" clearable placeholder="请输入内容" class="search-main" />
+      <el-input v-model="params.personName" clearable placeholder="请输入内容" class="search-main" @clear="searchBtn" />
       <span class="search-label">状态：</span>
       <el-select v-model="params.cardStatus">
         <el-option

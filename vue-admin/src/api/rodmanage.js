@@ -38,3 +38,16 @@ export const getAreaListApi = () => {
 
   })
 }
+
+/**
+ * 修改一体杆
+ * @param {*} data
+ * @returns
+ */
+export const editRodManageListApi = data => {
+  return request({
+    url: '/pole/info',
+    method: 'put',
+    data
+  })
+}

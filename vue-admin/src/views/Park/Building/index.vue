@@ -3,7 +3,7 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">楼宇名称：</div>
-      <el-input v-model="searchForm.name" placeholder="请输入内容" class="search-main" />
+      <el-input v-model="searchForm.name" placeholder="请输入内容" class="search-main" clearable @clear="searchList" />
       <el-button type="primary" @click="searchList">查询</el-button>
     </div>
     <el-button type="primary" @click="editBuilding(null)">添加楼宇</el-button>

@@ -3,9 +3,9 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <span class="search-label">一体杆名称：</span>
-      <el-input v-model="from.poleName" clearable placeholder="请输入一体杆名称" class="search-main" />
+      <el-input v-model="from.poleName" clearable placeholder="请输入一体杆名称" class="search-main" @clear="searchRodManageList" />
       <span class="search-label">一体杆编号：</span>
-      <el-input v-model="from.poleNumber" clearable placeholder="请输入一体杆编号" class="search-main" />
+      <el-input v-model="from.poleNumber" clearable placeholder="请输入一体杆编号" class="search-main" @clear="searchRodManageList" />
       <span class="search-label">运行状态：</span>
       <el-select v-model="from.poleStatus" placeholder="请输入运行状态">
         <el-option
@@ -19,7 +19,7 @@
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
-      <el-button type="primary" @click="openDialog">添加一体杆</el-button>
+      <el-button type="primary" @click="editRodManage(null)">添加一体杆</el-button>
       <el-button>批量删除</el-button>
     </div>
     <!-- 表格区域 -->
@@ -34,7 +34,7 @@
         <el-table-column label="运行状态" prop="poleStatus" :formatter="formStatus" />
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
-            <el-button size="mini" type="text">编辑</el-button>
+            <el-button size="mini" type="text" @click="editRodManage(scope.row)">编辑</el-button>
             <el-button size="mini" type="text">删除</el-button>
           </template>
         </el-table-column>
@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import { getRodManageListApi, addRodManageListApi, getAreaListApi } from '@/api/rodmanage'
+import { getRodManageListApi, addRodManageListApi, getAreaListApi, editRodManageListApi } from '@/api/rodmanage'
 export default {
   data() {
     const validatePort1 = (rule, value, callback) => {
@@ -211,17 +211,19 @@ export default {
     async addRodManageList() {
       this.$refs.addFrom.validate(async isOK => {
         if (isOK) {
-          const res = await addRodManageListApi(this.addFrom)
-          console.log(res)
+          if (this.addFrom.id) {
+            const res = await editRodManageListApi(this.addFrom)
+            console.log(res)
+            this.$message.success('修改成功')
+          } else {
+            const res = await addRodManageListApi(this.addFrom)
+            console.log(res)
+            this.$message.success('添加成功')
+          }
           this.getRodManageList() // 重新渲染数据
           this.closeDialog() // 关闭弹框
-          this.$message.success('添加成功')
         }
       })
-    },
-    // 打开弹框
-    openDialog() {
-      this.dialogVisible = true
     },
     // 关闭弹框
     closeDialog() {
@@ -238,6 +240,25 @@ export default {
     searchRodManageList() {
       this.from.page = 1
       this.getRodManageList()
+    },
+    // 修改
+    editRodManage(row) {
+      // console.log(row)
+      this.dialogVisible = true
+      if (row !== null) {
+        this.title = '编辑一体杆'
+        const { id, areaId, poleType, poleName, poleIp, poleNumber } = row
+        this.addFrom = { id, areaId, poleType, poleName, poleIp, poleNumber }
+      } else {
+        this.title = '添加一体杆'
+        this.addFrom = {
+          areaId: '',
+          poleType: '',
+          poleName: '',
+          poleIp: '',
+          poleNumber: ''
+        }
+      }
     }
   }
 }

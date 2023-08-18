@@ -3,8 +3,8 @@
     <!-- 搜索区域 -->
     <div class="search-container">
       <div class="search-label">员工姓名：</div>
-      <el-input clearable placeholder="请输入内容" class="search-main" />
-      <el-button type="primary">查询</el-button>
+      <el-input v-model="from.name" clearable placeholder="请输入内容" class="search-main" @clear="searchEmployeeList" />
+      <el-button type="primary" @click="searchEmployeeList">查询</el-button>
     </div>
     <div class="create-container">
       <el-button type="primary" @click="editEmployee(null)">添加员工</el-button>
@@ -135,6 +135,11 @@ export default {
     this.getRoleList()
   },
   methods: {
+    // 搜索
+    searchEmployeeList() {
+      this.from.page = 1
+      this.getEmployeeList()
+    },
     // 获取员工列表
     async getEmployeeList() {
       const res = await getEmployeeListApi(this.from)
