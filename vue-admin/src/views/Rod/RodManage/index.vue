@@ -15,7 +15,7 @@
           :label="item.name"
         />
       </el-select>
-      <el-button type="primary" class="search-btn">查询</el-button>
+      <el-button type="primary" class="search-btn" @click="searchRodManageList">查询</el-button>
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
@@ -233,8 +233,12 @@ export default {
       const res = await getAreaListApi()
       console.log(res)
       this.areaList = res.data
+    },
+    // 搜索
+    searchRodManageList() {
+      this.from.page = 1
+      this.getRodManageList()
     }
-
   }
 }
 </script>
