@@ -103,7 +103,6 @@ export default {
       },
       // 缴费信息表单数据
       feeForm: {
-
         payTime: '', // 支付时间
         paymentAmount: null, // 支付金额
         paymentMethod: '' // 支付方式
