@@ -58,3 +58,16 @@ export const editEmployeeApi = data => {
     data
   })
 }
+
+/**
+ * 重置密码
+ * @param {*} id
+ * @returns
+ */
+export const resetPasswordApi = id => {
+  return request({
+    url: '/park/sys/user/resetPwd',
+    method: 'put',
+    data: { id }
+  })
+}

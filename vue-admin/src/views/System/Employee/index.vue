@@ -27,7 +27,7 @@
           <template #default="scope">
             <el-button size="mini" type="text" @click="editEmployee(scope.row)">编辑</el-button>
             <el-button size="mini" type="text" @click="delEmployeeList(scope.row.id)">删除</el-button>
-            <el-button size="mini" type="text">重置密码</el-button>
+            <el-button size="mini" type="text" @click="resetPassword(scope.row.id)">重置密码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { getEmployeeListApi, getRoleListApi, addEmployeeListApi, delEmployeeListApi, editEmployeeApi } from '@/api/employee'
+import { getEmployeeListApi, getRoleListApi, addEmployeeListApi, delEmployeeListApi, editEmployeeApi, resetPasswordApi } from '@/api/employee'
 export default {
   name: 'Employee',
   data() {
@@ -237,6 +237,25 @@ export default {
       const res = await getRoleListApi()
       console.log(res)
       this.roleList = res.data
+    },
+    // 重置密码
+    resetPassword(id) {
+      // console.log(id)
+      this.$confirm('确定将密码重置为"123456"?', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+      //  提示框
+        this.$message({
+          type: 'success',
+          message: '重置密码成功'
+        })
+        const res = await resetPasswordApi(id)
+        console.log(res)
+      }).catch((error) => {
+        console.log(error)
+      })
     }
   }
 }
