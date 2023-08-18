@@ -19,7 +19,7 @@
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
-      <el-button type="primary">添加一体杆</el-button>
+      <el-button type="primary" @click="openDialog">添加一体杆</el-button>
       <el-button>批量删除</el-button>
     </div>
     <!-- 表格区域 -->
@@ -42,29 +42,78 @@
     </div>
     <div class="page-container">
       <el-pagination
+        :current-page.sync="from.page"
+        :page-size="from.pageSize"
         layout="total, prev, pager, next"
-        :total="0"
+        :total="total"
+        @current-change="handleCurrentChange"
       />
     </div>
     <!-- 添加一体杆 -->
     <el-dialog
-      title="添加一体杆"
+      :title="title"
+      :visible="dialogVisible"
       width="580px"
+      @close="closeDialog"
     >
-      <!-- 表单接口 -->
+      <div class="form-container">
+        <el-form ref="addFrom" :model="addFrom" :rules="addFromRules">
+          <el-form-item label="一体杆名称" prop="poleName">
+            <el-input v-model="addFrom.poleName" placeholder="请输入一体杆名称" />
+          </el-form-item>
+          <el-form-item label="一体杆编号" prop="poleNumber">
+            <el-input v-model="addFrom.poleNumber" placeholder="请输入一体杆编号" />
+          </el-form-item>
+          <el-form-item label="一体杆IP" prop="poleIp">
+            <el-input v-model="addFrom.poleIp" placeholder="请输入一体杆IP" />
+          </el-form-item>
+          <el-form-item label="一体杆区域" prop="areaId">
+            <el-select v-model="addFrom.areaId" placeholder="请选择一体杆区域" label="180px">
+              <el-option
+                v-for="item in areaList"
+                :key="item.areaId"
+                :label="item.areaName"
+                :value="item.areaId"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="一体杆类型" prop="poleType">
+            <el-select v-model="addFrom.poleType" placeholder="请选择一体杆类型" label="180px">
+              <el-option
+                v-for="item in typeList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.name==='入口'?'entrance':'export'"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
       <template #footer>
-        <el-button size="mini">取 消</el-button>
-        <el-button size="mini" type="primary">确 定</el-button>
+        <el-button size="mini" @click="dialogVisible=false">取 消</el-button>
+        <el-button size="mini" type="primary" @click="addRodManageList">确 定</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getRodManageListApi } from '@/api/rodmanage'
+import { getRodManageListApi, addRodManageListApi, getAreaListApi } from '@/api/rodmanage'
 export default {
   data() {
+    const validatePort1 = (rule, value, callback) => {
+      const reg =
+        /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/
+      if (value === '') {
+        callback(new Error('请输入IP地址'))
+      } else if (value !== '' && reg.test(value) === false) {
+        callback(new Error('请输入正确格式IP如(11.11.11.11)'))
+      } else {
+        callback()
+      }
+    }
     return {
+      total: 0, // 总条数
       rodManageList: [], // 存放一体杆列表
       from: {
         page: 1,
@@ -86,22 +135,54 @@ export default {
         {
           id: 1,
           name: '异常'
-        }]
+        }],
+      addFrom: {
+        poleName: '',
+        poleNumber: '',
+        poleIp: '',
+        areaId: '',
+        poleType: ''
+      },
+      addFromRules: {
+        poleName: [{ required: true, message: '请输入一体杆名称', trigger: 'blur' }],
+        poleNumber: [{ required: true, message: '请输入一体杆编号', trigger: 'blur' }],
+        poleIp: [
+          { required: true, message: '请输入一体杆IP', trigger: 'blur' },
+          {
+            required: true,
+            message: validatePort1.Error,
+            validator: validatePort1,
+            trigger: 'blur'
+
+          }
+        ],
+        areaId: [{ required: true, message: '请选择一体杆区域', trigger: 'blur' }],
+        poleType: [{ required: true, message: '请输入一体杆类型', trigger: 'blur' }]
+      },
+      dialogVisible: false,
+      title: '添加一体杆',
+      areaList: [], // 存放区域列表
+      typeList: [
+        { id: 0, name: '入口' },
+        { id: 1, name: '出口' }
+      ] // 存放类型列表
     }
   },
   created() {
     this.getRodManageList()
+    this.getAreaList()
   },
   methods: {
     // 获取一体杆列表
     async getRodManageList() {
       const res = await getRodManageListApi(this.from)
-      console.log(res)
+      // console.log(res)
       this.rodManageList = res.data.rows
+      this.total = res.data.total
     },
     // 序号
     indexMthod(index) {
-      return index + 1
+      return this.from.pageSize * (this.from.page - 1) + index + 1
     },
     // 一体杆类型
     typeStatus(status) {
@@ -120,7 +201,40 @@ export default {
         1: '异常'
       }
       return data[status.poleStatus]
+    },
+    // 分页跳转
+    handleCurrentChange(val) {
+      this.from.page = val
+      this.getRodManageList()
+    },
+    // 添加
+    async addRodManageList() {
+      this.$refs.addFrom.validate(async isOK => {
+        if (isOK) {
+          const res = await addRodManageListApi(this.addFrom)
+          console.log(res)
+          this.getRodManageList() // 重新渲染数据
+          this.closeDialog() // 关闭弹框
+          this.$message.success('添加成功')
+        }
+      })
+    },
+    // 打开弹框
+    openDialog() {
+      this.dialogVisible = true
+    },
+    // 关闭弹框
+    closeDialog() {
+      this.dialogVisible = false
+      this.$refs.addFrom.resetFields()
+    },
+    // 获取一体杆区域
+    async   getAreaList() {
+      const res = await getAreaListApi()
+      console.log(res)
+      this.areaList = res.data
     }
+
   }
 }
 </script>
@@ -154,4 +268,5 @@ export default {
 .form-container{
   padding:0px 80px;
 }
+
 </style>

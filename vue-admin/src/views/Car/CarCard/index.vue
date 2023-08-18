@@ -70,22 +70,7 @@
       width="580px"
     >
       <!-- 表单接口 -->
-      <div class="form-container">
-        <!-- <el-form ref="addForm" :model="addForm" :rules="addFormRules">
-          <el-form-item label="楼宇名称" prop="name">
-            <el-input v-model="addForm.name" />
-          </el-form-item>
-          <el-form-item label="楼宇层数" prop="floors">
-            <el-input v-model="addForm.floors" />
-          </el-form-item>
-          <el-form-item label="在管面积" prop="area">
-            <el-input v-model="addForm.area" />
-          </el-form-item>
-          <el-form-item label="物业费" prop="propertyFeePrice">
-            <el-input v-model="addForm.propertyFeePrice" />
-          </el-form-item>
-        </el-form> -->
-      </div>
+      <div class="form-container" />
       <template #footer>
         <el-button size="mini">取 消</el-button>
         <el-button size="mini" type="primary">确 定</el-button>
