@@ -20,11 +20,16 @@
     <!-- 新增删除操作区域 -->
     <div class="create-container">
       <el-button type="primary" @click="editRodManage(null)">添加一体杆</el-button>
-      <el-button>批量删除</el-button>
+      <el-button @click="delRodManageList">批量删除</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
-      <el-table style="width: 100%" :data="rodManageList">
+
+      <el-table style="width: 100%" :data="rodManageList" @selection-change="handleSelectionChange">
+        <el-table-column
+          type="selection"
+          width="55"
+        />
         <el-table-column type="index" label="序号" :index="indexMthod" />
         <el-table-column label="一体杆名称" prop="poleName" />
         <el-table-column label="一体杆编号" prop="poleNumber" />
@@ -35,7 +40,7 @@
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button size="mini" type="text" @click="editRodManage(scope.row)">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="delRodManage(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -98,7 +103,7 @@
 </template>
 
 <script>
-import { getRodManageListApi, addRodManageListApi, getAreaListApi, editRodManageListApi } from '@/api/rodmanage'
+import { getRodManageListApi, addRodManageListApi, getAreaListApi, editRodManageListApi, delRodManageListApi } from '@/api/rodmanage'
 export default {
   data() {
     const validatePort1 = (rule, value, callback) => {
@@ -165,7 +170,8 @@ export default {
       typeList: [
         { id: 0, name: '入口' },
         { id: 1, name: '出口' }
-      ] // 存放类型列表
+      ], // 存放类型列表
+      delList: [] // 存放要批量删除的列表
     }
   },
   created() {
@@ -259,6 +265,59 @@ export default {
           poleNumber: ''
         }
       }
+    },
+    // 删除
+    delRodManage(id) {
+      // console.log(id)
+      this.$confirm('确定删除吗', '温馨提示').then(async() => {
+        // 提示框
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        // 发送请求
+        const res = await delRodManageListApi(id)
+        console.log(res)
+        // 当这也数据删完时跳转到上一页
+        if (this.rodManageList.length === 1 && this.params.page > 1) {
+          this.from.page--
+        }
+        this.getRodManageList() // 渲染页面
+      }).catch((error) => {
+        console.log(error)
+      }
+      )
+    },
+    handleSelectionChange(val) {
+      // console.log(val)
+      this.delList = val.map(item => item.id).join(',')
+      // console.log(this.delList)
+    },
+    // 批量删除
+    delRodManageList(id) {
+      // console.log(id)
+      if (this.delList.length === 0) {
+        return this.$message.warning('没有要删除的数据')
+      }
+
+      this.$confirm('确定要删除吗', '温馨提示').then(async() => {
+      //  提示删除成功
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+        // 当这也数据删完时跳转到上一页
+        if (this.rodManageList.length === 1 && this.params.page > 1) {
+          this.from.page--
+        }
+        const res = await delRodManageListApi(this.delList)
+        console.log(res)
+
+        this.getRodManageList() // 渲染页面
+      }).catch((error) => {
+        console.log(error)
+      }
+      )
     }
   }
 }

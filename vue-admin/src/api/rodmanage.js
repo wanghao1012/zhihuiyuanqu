@@ -51,3 +51,15 @@ export const editRodManageListApi = data => {
     data
   })
 }
+
+/**
+ * 删除一体杆
+ * @param {*} id
+ * @returns
+ */
+export const delRodManageListApi = id => {
+  return request({
+    method: 'delete',
+    url: `/pole/info/${id}`
+  })
+}
