@@ -12,3 +12,38 @@ export const getPropetyListApi = params => {
     params
   })
 }
+
+/**
+ * 添加账单
+ * @param {*} data
+ * @returns
+ */
+export const addPropetyListApi = data => {
+  return request({
+    url: '/park/propertyfee',
+    method: 'POST',
+    data
+  })
+}
+
+/**
+ * 获取所有租户信息
+ * @returns
+ */
+export const getLesseeListApi = () => {
+  return request({
+    url: '/park/all/enterprise',
+    method: 'get'
+  })
+}
+
+/**
+ * 获取所有租赁楼宇
+ * @returns
+ */
+export const getLeaseholdPremisesApi = () => {
+  return request({
+    url: '/park/all/building',
+    method: 'get'
+  })
+}
