@@ -17,7 +17,7 @@
     </div>
     <!-- 新增删除操作区域 -->
     <div class="create-container">
-      <el-button type="primary" @click="open">添加账单</el-button>
+      <el-button type="primary" @click="open(null)">添加账单</el-button>
     </div>
     <!-- 表格区域 -->
     <div class="table">
@@ -34,7 +34,7 @@
         <el-table-column label="缴费时间" prop="createTime" />
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
-            <el-button size="mini" type="text">查看</el-button>
+            <el-button size="mini" type="text" @click="open(scope.row)">查看</el-button>
             <el-button size="mini" type="text" @click="delPropetyList(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -53,14 +53,15 @@
     </div>
     <!-- 添加楼宇 -->
     <el-dialog
-      title="添加账单"
+      :title="title"
       width="580px"
       height="350px"
       :visible="dialogVisible"
       @close="closeDialog"
     >
       <!-- 表单接口 -->
-      <div class="form-container">
+      <!-- 添加账单 -->
+      <div v-if="title==='添加账单'" class="form-container">
         <el-form ref="addForm" :model="addForm" :rules="addRules">
           <el-form-item label="选择租户" prop="enterpriseId">
             <el-select v-model="addForm.enterpriseId" placeholder="请选择租户">
@@ -107,11 +108,46 @@
           </el-form-item>
         </el-form>
       </div>
+      <!-- 查看账单 -->
+      <div v-else class="form-inquireDialogVisible">
+        <el-form>
+          <el-form-item>
+            <span>租户名称：</span>
+            <span>{{ addForm.enterpriseName }}</span>
+          </el-form-item>
+          <el-form-item>
+            <span>租赁楼宇：</span>
+            <span>{{ addForm.buildingName }}</span>
+          </el-form-item>
+          <el-form-item>
+            <span>缴费周期：</span>
+            <span>{{ addForm.startTime }}至{{ addForm.endTime }}</span>
+          </el-form-item>
+          <el-form-item>
+            <span>物业费(元/m²)：</span>
+            <span>{{ addForm.propertyFeePrice }}</span>
+          </el-form-item>
+          <el-form-item>
+            <span>账单金额(元)：</span>
+            <span>{{ addForm.paymentAmount }}</span>
+          </el-form-item>
+          <el-form-item>
+            <span>支付方式：</span>
+            <span>{{ addForm.paymentMethod }}</span>
+          </el-form-item>
+          <el-form-item>
+            <span>缴费时间：</span>
+            <span>{{ addForm.createTime }}</span>
+          </el-form-item>
+
+        </el-form>
+      </div>
       <template #footer>
         <el-button size="mini" @click="dialogVisible = false">取 消</el-button>
         <el-button size="mini" type="primary" @click="addPropetyList">确 定</el-button>
       </template>
     </el-dialog>
+    <!-- 查询弹出框 -->
   </div>
 </template>
 
@@ -131,7 +167,8 @@ export default {
       // 存放获取到的企业列表
       enterpriseList: [],
       total: 0,
-      dialogVisible: false, // 弹框开关
+      title: '添加账单',
+      dialogVisible: false, // 添加弹框开关
       lesseeList: [], // 租户列表
       LeaseholdPremises: [], // 租赁楼宇
       paymentList: [
@@ -154,6 +191,7 @@ export default {
         paymentAmount: [{ required: true, message: '请输入缴费金额', trigger: 'blur' }],
         paymentMethod: [{ required: true, message: '请选择支付方式', trigger: 'change' }]
       }
+
     }
   },
   created() {
@@ -190,9 +228,23 @@ export default {
       this.getPropetyList()
     },
     // 点击添加弹框
-    open() {
+    open(row) {
       this.dialogVisible = true
-      this.getLesseeList()
+      // 判断用户是要查看账单还是要添加账单
+      if (row !== null) {
+        this.title = '查看账单'
+        console.log(row)
+        const { enterpriseName, buildingName, createTime, endTime, startTime, propertyFeePrice, paymentAmount, paymentMethod } = row
+        const formPaymentMethod = {
+          1: '微信',
+          2: '支付宝',
+          3: '现金'
+        }
+        this.addForm = { enterpriseName, buildingName, createTime, endTime, startTime, propertyFeePrice, paymentAmount, paymentMethod: formPaymentMethod[paymentMethod] }
+      } else {
+        this.title = '添加账单'
+        this.getLesseeList()
+      }
     },
     // 关闭弹框
     closeDialog() {
@@ -290,5 +342,8 @@ export default {
       width: 350px;
     }
   }
+}
+.form-inquireDialogVisible{
+
 }
 </style>
