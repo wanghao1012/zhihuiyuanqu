@@ -35,7 +35,7 @@
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button size="mini" type="text">查看</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="delPropetyList(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -116,7 +116,7 @@
 </template>
 
 <script>
-import { getPropetyListApi, addPropetyListApi, getLesseeListApi, getLeaseholdPremisesApi } from '@/api/propety'
+import { getPropetyListApi, addPropetyListApi, getLesseeListApi, getLeaseholdPremisesApi, delPropetyListApi } from '@/api/propety'
 export default {
   data() {
     return {
@@ -229,6 +229,22 @@ export default {
           this.$message.success('添加成功')
           this.closeDialog()
         }
+      })
+    },
+    // 删除企业列表
+    delPropetyList(id) {
+      this.$confirm('确定要删除吗?', '温馨提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        // console.log(id)
+        const res = await delPropetyListApi(id)
+        console.log(res)
+        this.getPropetyList()
+        this.$message.success('删除成功')
+      }).catch((error) => {
+        console.log(error)
       })
     }
   }

@@ -47,3 +47,15 @@ export const getLeaseholdPremisesApi = () => {
     method: 'get'
   })
 }
+
+/**
+ * 删除企业列表
+ * @param {*} id
+ * @returns
+ */
+export const delPropetyListApi = id => {
+  return request({
+    url: `/park/propertyfee/${id}`,
+    method: 'DELETE'
+  })
+}
