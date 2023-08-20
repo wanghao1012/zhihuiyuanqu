@@ -32,7 +32,11 @@
           <template #default="{row}">
             <el-table :data="row.rentList">
               <el-table-column label="租赁楼宇" width="320" prop="buildingName" />
-              <el-table-column label="租赁起始时间" prop="startTime" />
+              <el-table-column label="租赁起始时间" prop="startTime">
+                <template #default="rowObj">
+                  {{ rowObj.row.startTime }}至{{ rowObj.row.endTime }}
+                </template>
+              </el-table-column>
               <el-table-column label="合同状态" prop="status">
                 <template #default="scope">
                   <el-tag :type="formatInfoType(scope.row.status)">
