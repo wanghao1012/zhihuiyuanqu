@@ -142,3 +142,15 @@ export const getEnterpriseDetailApi = id => {
     method: 'GET'
   })
 }
+
+/**
+ * 删除租赁合同
+ * @param {*} id
+ * @returns
+ */
+export const delRentListApi = id => {
+  return request({
+    url: `/park/enterprise/rent/${id}`,
+    method: 'DELETE'
+  })
+}

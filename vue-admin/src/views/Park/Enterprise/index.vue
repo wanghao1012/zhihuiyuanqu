@@ -44,7 +44,7 @@
                 <template #default="scope">
                   <el-button size="mini" type="text">续租</el-button>
                   <el-button size="mini" type="text" :disabled="scope.row.status === 3" @click="outRent(scope.row.id)">退租</el-button>
-                  <el-button size="mini" type="text" :disabled="scope.row.status !== 3">删除</el-button>
+                  <el-button size="mini" type="text" :disabled="scope.row.status !== 3" @click="delRentList(scope.row.id)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -82,9 +82,22 @@
               />
             </el-form-item>
             <el-form-item label="租赁合同" prop="contractId">
+              <!--action 默认上传 必选参数，上传的地址  -->
+              <!-- http-request 覆盖默认的上传行为，可以自定义上传的实现 -->
+              <!-- before-upload 上传文件之前的钩子-->
+              <!-- limit	最大允许上传个数 -->
+              <!-- on-exceed  文件超出个数限制时执行的钩子 -->
+              <!--file-list  上传的文件列表方便调用清空 -->
+              <!-- on-remove	文件列表移除文件时的钩子 -->
               <el-upload
+                ref="upload"
                 action="#"
                 :http-request="uploadHandle"
+                :before-upload="beforeUpload"
+                :limit="1"
+                :on-exceed="onExceed"
+
+                :on-remove="onRemove"
               >
                 <el-button size="small" type="primary" plain>上传合同文件</el-button>
                 <div slot="tip" class="el-upload__tip">支持扩展名：.doc .docx .pdf, 文件大小不超过5M</div>
@@ -114,7 +127,7 @@
 </template>
 
 <script>
-import { getEnterpriseListApi, delEnterpriseApi, getRentBuildingListApi, uploadApi, createRentApi, getRentListApi, outRentApi } from '@/api/enterprise'
+import { getEnterpriseListApi, delEnterpriseApi, getRentBuildingListApi, uploadApi, createRentApi, getRentListApi, outRentApi, delRentListApi } from '@/api/enterprise'
 export default {
   data() {
     return {
@@ -147,6 +160,7 @@ export default {
         ]
       },
       buildList: [] // 楼宇列表
+
     }
   },
   created() {
@@ -235,7 +249,7 @@ export default {
         }
       })
     },
-    // 删除
+    // 删除企业
     del(id) {
       this.$confirm('确认删除该企业吗?', '提示', {
         confirmButtonText: '确定',
@@ -267,7 +281,7 @@ export default {
     closeDialog() {
       this.rentDialogVisible = false
       // 重置表单
-      this.$refs.addForm.resetFields()
+      this.$refs.addForm.resetFields() // 在这里的主要作用是清空提示语
       this.rentForm = {
         buildingId: null, // 楼宇id
         contractId: null, // 合同id
@@ -276,6 +290,8 @@ export default {
         type: 0, // 合同类型
         rentTime: [] // 合同时间
       }
+      // 调用清除上传文件的列表
+      this.$refs.upload.clearFiles() // 关闭弹框时清除上传的文件列表
     },
     // 上传合同
     async uploadHandle(fileData) {
@@ -286,11 +302,40 @@ export default {
       formData.append('type', 'contract')
       // 2. 上传并赋值
       const res = await uploadApi(formData)
+      // console.log(res)
       const { id, url } = res.data
       this.rentForm.contractId = id
       this.rentForm.contractUrl = url
       // 单独校验表单
-      this.$refs.addForm.validate('contractId')
+      this.$refs.addForm.validateField('contractId')
+    },
+    // 移除合同后重新校验表单
+    onRemove() {
+      // 清空表单
+      this.rentForm.contractId = ''
+      this.rentForm.contractUrl = ''
+      // 校验
+      this.$refs.addForm.validateField('contractId')
+    },
+    // 上传前筛选大小及文件类型
+    beforeUpload(file) {
+      // 1. 校验文件类型 .doc .docx .pdf
+      const typeList = [
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'application/pdf']
+      const fileType = typeList.includes(file.type)
+      const fileSize = file.size / 1024 / 1024 < 5 // 大小小于5m
+      if (fileType && fileSize) {
+        return true
+      } else {
+        this.$message.error('上传文件只能是doc、docx、pdf格式且大小不能超过5m')
+        return false
+      }
+    },
+    // 校验上传的个数
+    onExceed() {
+      this.$message.warning('文件上传个数 超出限制')
     },
     // 确认提交
     confirmAdd() {
@@ -302,6 +347,7 @@ export default {
             startTime: this.rentForm.rentTime[0],
             endTime: this.rentForm.rentTime[1]
           })
+          this.$message.success('添加成功')
           // 更新列表
           this.getEnterpriseList()
           // 关闭弹框
@@ -329,6 +375,17 @@ export default {
           type: 'info',
           message: '取消退租'
         })
+      })
+    },
+    // 删除租赁信息
+    delRentList(id) {
+      this.$confirm('确认删除吗?', '提示').then(async() => {
+        const res = await delRentListApi(id)
+        console.log(res)
+        this.$message.success('删除成功')
+        this.getEnterpriseList()
+      }).catch((error) => {
+        console.log(error)
       })
     }
   }

@@ -25,7 +25,15 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   response => {
-    return response.data
+    // 当原始数据不能删除的时候
+    if (response.data.code !== 10000) {
+      // 弹出错误信息
+      Message.error(response.data.msg)
+      // 返回错误信息
+      return Promise.reject(response.data)
+    } else {
+      return response.data
+    }
   },
   error => {
     console.dir(error)
