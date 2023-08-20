@@ -45,6 +45,7 @@
         </el-table-column>
       </el-table>
     </div>
+    <!-- 分页 -->
     <div class="page-container">
       <el-pagination
         :current-page.sync="from.page"
