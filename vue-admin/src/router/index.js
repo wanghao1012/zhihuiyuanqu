@@ -134,6 +134,10 @@ export const routes = [
   {
     path: '/exterpriseDetail',
     component: () => import('@/views/Park/Enterprise/Detail')
+  },
+  {
+    path: '/lookWarn/:id',
+    component: () => import('@/views/Rod/RodWarn/lookWarn')
   }
 ]
 
