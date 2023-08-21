@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { getCardAreaListApi, getRelevanceListApi, addCardAreaListApi } from '@/api/cardArea'
+import { getCardAreaListApi, getRelevanceListApi, addCardAreaListApi, editCardAreaListApi } from '@/api/cardArea'
 export default {
   data() {
     return {
@@ -118,8 +118,11 @@ export default {
       title: '添加区域'
     }
   },
-  created() {
+  async created() {
     this.getCardAreaList()
+    const res = await getRelevanceListApi()
+    console.log(res)
+    this.relevanceList = res.data
   },
   methods: {
     async getCardAreaList() {
@@ -148,11 +151,9 @@ export default {
       // 在鼠标进入单元格时触发的操作
       // console.log(row, column, cell, event)
     },
-    async open() {
+    open() {
       this.dialogVisible = true
-      const res = await getRelevanceListApi()
-      console.log(res)
-      this.relevanceList = res.data
+      this.title = '添加区域'
     },
     closeDialog() {
       this.dialogVisible = false
@@ -169,18 +170,24 @@ export default {
     },
     edit(row) {
       this.title = '编辑区域'
-      // console.log(row)
+      console.log(row)
       this.dialogVisible = true
-      const { areaName, spaceNumber, areaProportion, ruleId, remark } = row
-      this.addFrom = { areaName, spaceNumber, areaProportion, ruleId, remark }
+      const { id, areaName, spaceNumber, areaProportion, ruleId, remark } = row
+      this.addFrom = { id, areaName, spaceNumber, areaProportion, ruleId, remark }
     },
     // 添加或修改区域
     addCardAreaList() {
       this.$refs.addFrom.validate(async(valid) => {
         if (valid) {
-          const res = await addCardAreaListApi(this.addFrom)
-          console.log(res)
-          this.$message.success('添加成功')
+          if (this.addFrom.id) {
+            const res = await editCardAreaListApi(this.addFrom)
+            console.log(res)
+            this.$message.success('修改成功')
+          } else {
+            const res = await addCardAreaListApi(this.addFrom)
+            console.log(res)
+            this.$message.success('添加成功')
+          }
           this.getCardAreaList()
           this.closeDialog()
         }

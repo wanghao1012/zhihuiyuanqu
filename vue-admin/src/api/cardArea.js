@@ -36,3 +36,16 @@ export const addCardAreaListApi = data => {
     data
   })
 }
+
+/**
+ * 修改区域
+ * @param {3} data
+ * @returns
+ */
+export const editCardAreaListApi = data => {
+  return request({
+    url: '/parking/area',
+    method: 'put',
+    data
+  })
+}
