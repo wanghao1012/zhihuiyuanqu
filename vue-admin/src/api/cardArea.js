@@ -49,3 +49,15 @@ export const editCardAreaListApi = data => {
     data
   })
 }
+
+/**
+ * 删除区域
+ * @param {*} id
+ * @returns
+ */
+export const delCardAreaListApi = id => {
+  return request({
+    url: `/parking/area/${id}`,
+    method: 'delete'
+  })
+}

@@ -16,7 +16,7 @@
         <el-table-column label="操作" fixed="right" width="180">
           <template #default="scope">
             <el-button size="mini" type="text" @click="edit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="text">删除</el-button>
+            <el-button size="mini" type="text" @click="delCardAreaList(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { getCardAreaListApi, getRelevanceListApi, addCardAreaListApi, editCardAreaListApi } from '@/api/cardArea'
+import { getCardAreaListApi, getRelevanceListApi, addCardAreaListApi, editCardAreaListApi, delCardAreaListApi } from '@/api/cardArea'
 export default {
   data() {
     return {
@@ -191,6 +191,15 @@ export default {
           this.getCardAreaList()
           this.closeDialog()
         }
+      })
+    },
+    // 删除区域
+    delCardAreaList(id) {
+      this.$confirm('此操作将永久删除该区域, 是否继续?', '提示').then(async() => {
+        const res = await delCardAreaListApi(id)
+        console.log(res)
+        this.$message.success('删除成功')
+        this.getCardAreaList()
       })
     }
   }
