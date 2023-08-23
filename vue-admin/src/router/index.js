@@ -122,6 +122,10 @@ export const routes = [
     component: () => import('@/views/404'),
     hidden: true
   },
+  {
+    path: '/roleAdd',
+    component: () => import('@/views/System/Role/AddRole')
+  },
   // 添加编辑月卡
   { path: '/cardAdd',
     component: () => import('@/views/Car/CarCard/cardAdd')
