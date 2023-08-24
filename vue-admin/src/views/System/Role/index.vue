@@ -13,7 +13,15 @@
           {{ item.roleName }}
         </div>
         <div class="more">
-          <svg-icon icon-class="more" />
+          <el-dropdown>
+            <span class="el-dropdown-link">
+              <svg-icon icon-class="more" />
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item @click.native="$router.push(`/roleAdd?id=${item.roleId}`)">编辑角色</el-dropdown-item>
+              <el-dropdown-item @click.native="delRoleUser(item.roleId)">删除</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </div>
       </div>
       <el-button class="addBtn" size="mini" @click="$router.push('/roleAdd')">添加角色</el-button>
@@ -66,7 +74,7 @@
 
 <script>
 import { getRoleListApi } from '@/api/employee'
-import { getTreeListApi, getRoleDetailApi, getRoleUserApi } from '@/api/role'
+import { getTreeListApi, getRoleDetailApi, getRoleUserApi, delRoleUserApi } from '@/api/role'
 export default {
   name: 'Role',
   data() {
@@ -141,6 +149,20 @@ export default {
       console.log(res)
       this.roleUserList = res.data.rows
       this.total = res.data.total
+    },
+    async  delRoleUser(id) {
+      this.$confirm('是否确认删除当前角色?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await delRoleUserApi(id)
+        this.getRoleList()
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      })
     }
   }
 }

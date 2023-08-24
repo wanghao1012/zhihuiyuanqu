@@ -33,3 +33,39 @@ export function getRoleUserApi(roleId, params) {
     params
   })
 }
+
+/**
+ * 创建角色
+ * @returns
+ */
+export function createRoleUserApi(data) {
+  return request({
+    url: `/park/sys/role`,
+    method: 'POST',
+    data
+  })
+}
+
+/**
+ * 修改角色
+ * @param {*} data
+ * @returns
+ */
+export const updateRoleApi = (data) => {
+  return request({
+    url: '/park/sys/role',
+    method: 'PUT',
+    data
+  })
+}
+
+/**
+ * 删除角色
+ * @returns
+ */
+export function delRoleUserApi(roleId) {
+  return request({
+    url: `/park/sys/role/${roleId}`,
+    method: 'DELETE'
+  })
+}
