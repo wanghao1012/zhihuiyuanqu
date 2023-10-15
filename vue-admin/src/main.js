@@ -7,6 +7,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 
 import '@/styles/index.scss' // global css
 
+// 启动微前端配置
+import './registerMicroApp'
 // 引入根组件
 import App from './App'
 // 引入Vuex
@@ -19,6 +21,9 @@ import '@/icons'
 
 // 导入导航守卫
 import './permission'
+
+// 导入全局指令组件
+import '@/directive'
 
 // 把ElementUI提供的所有组件注册为全局组件
 Vue.use(ElementUI)

@@ -1,0 +1,28 @@
+{
+  "name": "hmzs-screen",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@splinetool/runtime": "^0.9.431",
+    "axios": "^1.5.0",
+    "echarts": "^5.4.3",
+    "js-cookie": "^3.0.5",
+    "sass": "^1.66.1",
+    "v-scale-screen": "^2.2.0",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.3.1",
+    "eslint": "^8.46.0",
+    "eslint-plugin-vue": "^9.16.1",
+    "vite": "^4.4.9",
+    "vite-plugin-qiankun": "^1.0.15"
+  }
+}

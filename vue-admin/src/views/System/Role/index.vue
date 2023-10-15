@@ -162,6 +162,8 @@ export default {
           type: 'success',
           message: '删除成功!'
         })
+      }).catch(err => {
+        console.log(err)
       })
     }
   }

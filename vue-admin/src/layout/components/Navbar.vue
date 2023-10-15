@@ -1,6 +1,7 @@
 <template>
   <div class="navbar">
     <div class="right-menu">
+      <el-button @click="$router.push('/bigscreen')">可视化大屏</el-button>
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <!-- 用户名称 -->
@@ -37,6 +38,8 @@ export default {
     logout() {
       // 退出登录 清除token
       this.$store.commit('user/removeToken')
+      // 退出登录清空路由规则
+      this.$store.commit('menu/clearMenuList')
       // console.log(this.$route.fullPath) // 从那个页面跳转过来的
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
@@ -121,10 +124,11 @@ export default {
 
     .avatar-container {
       margin-right: 30px;
+      margin-left: 10px;
       .avatar-wrapper {
         margin-top: 5px;
         position: relative;
-        .name{
+        .name {
           font-weight: 600;
           cursor: pointer;
         }
